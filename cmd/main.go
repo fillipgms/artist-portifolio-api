@@ -7,7 +7,7 @@ import (
 
 	"github.com/fillipgms/portfolio-api/internal/env"
 	"github.com/fillipgms/portfolio-api/internal/helpers"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
@@ -27,11 +27,11 @@ func main () {
 
 	slog.SetDefault(logger)
 
-	conn, err := pgx.Connect(ctx, cfg.db.dsn)
-	if err != nil {
-		panic(err)
-	}
-	defer conn.Close(ctx)
+	  pool, err := pgxpool.New(ctx, cfg.db.dsn)
+    if err != nil {
+        panic(err)
+    }
+    defer pool.Close()
 
 	logger.Info("Connected to Database", "dsn", cfg.db.dsn)
 
@@ -39,7 +39,7 @@ func main () {
 
 	api := &application{
 		config: cfg,
-		db: conn,
+		db: pool,
 	}
 
 	if err := api.run(api.mount()); err != nil {

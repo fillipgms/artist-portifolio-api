@@ -9,7 +9,7 @@ import (
 	"github.com/fillipgms/portfolio-api/internal/illustrations"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 
@@ -54,7 +54,7 @@ func (app *application) run(h http.Handler) error {
 
 type application struct {
 	config config
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
 type config struct {
