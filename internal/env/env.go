@@ -8,5 +8,4 @@ func GetString(key, fallback string) string {
 	}
 
 	return fallback
-
 }
