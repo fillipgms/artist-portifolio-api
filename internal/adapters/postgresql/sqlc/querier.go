@@ -6,13 +6,17 @@ package repo
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
 	CreateIllustration(ctx context.Context, arg CreateIllustrationParams) (Illustration, error)
 	FindIllustrationById(ctx context.Context, id int64) (Illustration, error)
+	FindIllustrationByName(ctx context.Context, slug pgtype.Text) (Illustration, error)
 	FindIllustrationsCount(ctx context.Context) (int64, error)
 	ListIllustrations(ctx context.Context, arg ListIllustrationsParams) ([]Illustration, error)
+	UpdateSlug(ctx context.Context, arg UpdateSlugParams) (Illustration, error)
 }
 
 var _ Querier = (*Queries)(nil)

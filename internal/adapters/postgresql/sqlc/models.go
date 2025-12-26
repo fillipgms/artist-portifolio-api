@@ -11,6 +11,7 @@ import (
 type Illustration struct {
 	ID          int64              `json:"id"`
 	Title       string             `json:"title"`
+	Slug        pgtype.Text        `json:"slug"`
 	Description string             `json:"description"`
 	Imageurl    string             `json:"imageurl"`
 	Post        pgtype.Text        `json:"post"`

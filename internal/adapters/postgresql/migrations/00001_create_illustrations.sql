@@ -3,6 +3,7 @@
 CREATE TABLE IF NOT EXISTS illustrations (
     id              BIGSERIAL PRIMARY key,
     title           TEXT NOT NULL,
+    slug            TEXT UNIQUE,
     description     TEXT NOT NULL,
     imageURL        TEXT NOT NULL,
     post            TEXT,

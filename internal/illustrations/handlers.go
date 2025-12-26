@@ -9,6 +9,7 @@ import (
 	"github.com/fillipgms/portfolio-api/internal/helpers"
 	"github.com/fillipgms/portfolio-api/internal/json"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type handler struct {
@@ -38,8 +39,22 @@ func (h *handler) CreateIllustration(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.Write(w, http.StatusOK, createdIllustration)
+	titleSlug:= helpers.Slugify(createdIllustration.Title, createdIllustration.ID)
 
+	pgText := pgtype.Text{
+		String: titleSlug,
+		Valid:  true,
+	}
+
+	updatedIllustration, err := h.service.UpdateSlug(r.Context(), pgText, createdIllustration.ID)
+
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	json.Write(w, http.StatusOK, updatedIllustration)
 }
 
 func (h *handler) ListIllustrations(w http.ResponseWriter, r *http.Request) {
@@ -82,19 +97,27 @@ func (h *handler) ListIllustrations(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) FindIllustrationById(w http.ResponseWriter, r *http.Request) {
-	idString := chi.URLParam(r, "illustrationId")
+	idOrSlug := chi.URLParam(r, "illustrationId")
 
-	id, err := strconv.ParseInt(idString, 10, 64)
+	if id, err := strconv.ParseInt(idOrSlug, 10, 64); err == nil {
+		illustration, err := h.service.FindIllustrationById(r.Context(), id)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	if (err != nil) {
-		log.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		json.Write(w, http.StatusOK, illustration)
 		return
 	}
 
-	illustration, err := h.service.FindIllustrationById(r.Context(), id)
+	slugText := pgtype.Text{
+		String: idOrSlug,
+		Valid:  true,
+	}
 
-	if (err != nil) {
+	illustration, err := h.service.FindIllustrationByName(r.Context(), slugText)
+	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

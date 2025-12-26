@@ -5,13 +5,16 @@ import (
 	"fmt"
 
 	repo "github.com/fillipgms/portfolio-api/internal/adapters/postgresql/sqlc"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Service interface{
 	CreateIllustration(ctx context.Context, tempIllustration repo.CreateIllustrationParams) (repo.Illustration, error)
 	ListIllustrations(ctx context.Context, limit int32, offset int32) ([]repo.Illustration, error);
 	FindIllustrationsCount(ctx context.Context) (int64, error);
-	FindIllustrationById(ctx context.Context, id int64) (repo.Illustration, error)
+	FindIllustrationById(ctx context.Context, id int64) (repo.Illustration, error);
+	FindIllustrationByName(ctx context.Context, slug pgtype.Text) (repo.Illustration, error)
+	UpdateSlug(ctx context.Context, slug pgtype.Text, id int64)(repo.Illustration, error)
 }
 
 type svc struct {
@@ -55,5 +58,15 @@ func (s *svc) FindIllustrationById(ctx context.Context, id int64) (repo.Illustra
 	return s.repo.FindIllustrationById(ctx, id)
 }
 
+func (s *svc) FindIllustrationByName(ctx context.Context, slug pgtype.Text) (repo.Illustration, error) {
+	return s.repo.FindIllustrationByName(ctx, slug)
+}
 
+func (s *svc) UpdateSlug(ctx context.Context, slug pgtype.Text, id int64) (repo.Illustration, error) {
+	params := repo.UpdateSlugParams{
+		Slug: slug,
+		ID: id,
+	}
 
+	return s.repo.UpdateSlug(ctx, params)
+}

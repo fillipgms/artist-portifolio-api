@@ -14,15 +14,17 @@ import (
 const createIllustration = `-- name: CreateIllustration :one
 INSERT INTO illustrations (
     title,
+    slug,
     description,
     imageURL,
     post,
     finished_at
-) VALUES ($1, $2, $3, $4, $5) RETURNING id, title, description, imageurl, post, finished_at, created_at
+) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, title, slug, description, imageurl, post, finished_at, created_at
 `
 
 type CreateIllustrationParams struct {
 	Title       string             `json:"title"`
+	Slug        pgtype.Text        `json:"slug"`
 	Description string             `json:"description"`
 	Imageurl    string             `json:"imageurl"`
 	Post        pgtype.Text        `json:"post"`
@@ -32,6 +34,7 @@ type CreateIllustrationParams struct {
 func (q *Queries) CreateIllustration(ctx context.Context, arg CreateIllustrationParams) (Illustration, error) {
 	row := q.db.QueryRow(ctx, createIllustration,
 		arg.Title,
+		arg.Slug,
 		arg.Description,
 		arg.Imageurl,
 		arg.Post,
@@ -41,6 +44,7 @@ func (q *Queries) CreateIllustration(ctx context.Context, arg CreateIllustration
 	err := row.Scan(
 		&i.ID,
 		&i.Title,
+		&i.Slug,
 		&i.Description,
 		&i.Imageurl,
 		&i.Post,
@@ -51,7 +55,7 @@ func (q *Queries) CreateIllustration(ctx context.Context, arg CreateIllustration
 }
 
 const findIllustrationById = `-- name: FindIllustrationById :one
-SELECT id, title, description, imageurl, post, finished_at, created_at FROM illustrations WHERE id = $1
+SELECT id, title, slug, description, imageurl, post, finished_at, created_at FROM illustrations WHERE id = $1
 `
 
 func (q *Queries) FindIllustrationById(ctx context.Context, id int64) (Illustration, error) {
@@ -60,6 +64,27 @@ func (q *Queries) FindIllustrationById(ctx context.Context, id int64) (Illustrat
 	err := row.Scan(
 		&i.ID,
 		&i.Title,
+		&i.Slug,
+		&i.Description,
+		&i.Imageurl,
+		&i.Post,
+		&i.FinishedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const findIllustrationByName = `-- name: FindIllustrationByName :one
+SELECT id, title, slug, description, imageurl, post, finished_at, created_at FROM illustrations WHERE slug = $1 LIMIT 1
+`
+
+func (q *Queries) FindIllustrationByName(ctx context.Context, slug pgtype.Text) (Illustration, error) {
+	row := q.db.QueryRow(ctx, findIllustrationByName, slug)
+	var i Illustration
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Slug,
 		&i.Description,
 		&i.Imageurl,
 		&i.Post,
@@ -81,9 +106,9 @@ func (q *Queries) FindIllustrationsCount(ctx context.Context) (int64, error) {
 }
 
 const listIllustrations = `-- name: ListIllustrations :many
-SELECT id, title, description, imageurl, post, finished_at, created_at 
+SELECT id, title, slug, description, imageurl, post, finished_at, created_at 
 FROM illustrations 
-ORDER BY created_at DESC
+ORDER BY finished_at, created_at DESC
 LIMIT $1 OFFSET $2
 `
 
@@ -104,6 +129,7 @@ func (q *Queries) ListIllustrations(ctx context.Context, arg ListIllustrationsPa
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
+			&i.Slug,
 			&i.Description,
 			&i.Imageurl,
 			&i.Post,
@@ -118,4 +144,29 @@ func (q *Queries) ListIllustrations(ctx context.Context, arg ListIllustrationsPa
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateSlug = `-- name: UpdateSlug :one
+UPDATE illustrations SET slug = $1 WHERE id = $2 RETURNING id, title, slug, description, imageurl, post, finished_at, created_at
+`
+
+type UpdateSlugParams struct {
+	Slug pgtype.Text `json:"slug"`
+	ID   int64       `json:"id"`
+}
+
+func (q *Queries) UpdateSlug(ctx context.Context, arg UpdateSlugParams) (Illustration, error) {
+	row := q.db.QueryRow(ctx, updateSlug, arg.Slug, arg.ID)
+	var i Illustration
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Slug,
+		&i.Description,
+		&i.Imageurl,
+		&i.Post,
+		&i.FinishedAt,
+		&i.CreatedAt,
+	)
+	return i, err
 }
