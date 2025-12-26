@@ -17,18 +17,26 @@ INSERT INTO illustrations (
     slug,
     description,
     imageURL,
+    imageHeight,
+    imageWidth,
+    imageMimeType,
+    imageFileSize,
     post,
     finished_at
-) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, title, slug, description, imageurl, post, finished_at, created_at
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id, title, slug, description, imageurl, imageheight, imagewidth, imagemimetype, imagefilesize, post, finished_at, created_at
 `
 
 type CreateIllustrationParams struct {
-	Title       string             `json:"title"`
-	Slug        pgtype.Text        `json:"slug"`
-	Description string             `json:"description"`
-	Imageurl    string             `json:"imageurl"`
-	Post        pgtype.Text        `json:"post"`
-	FinishedAt  pgtype.Timestamptz `json:"finished_at"`
+	Title         string             `json:"title"`
+	Slug          pgtype.Text        `json:"slug"`
+	Description   string             `json:"description"`
+	Imageurl      string             `json:"imageurl"`
+	Imageheight   pgtype.Int4        `json:"imageheight"`
+	Imagewidth    pgtype.Int4        `json:"imagewidth"`
+	Imagemimetype pgtype.Text        `json:"imagemimetype"`
+	Imagefilesize pgtype.Int4        `json:"imagefilesize"`
+	Post          pgtype.Text        `json:"post"`
+	FinishedAt    pgtype.Timestamptz `json:"finished_at"`
 }
 
 func (q *Queries) CreateIllustration(ctx context.Context, arg CreateIllustrationParams) (Illustration, error) {
@@ -37,6 +45,10 @@ func (q *Queries) CreateIllustration(ctx context.Context, arg CreateIllustration
 		arg.Slug,
 		arg.Description,
 		arg.Imageurl,
+		arg.Imageheight,
+		arg.Imagewidth,
+		arg.Imagemimetype,
+		arg.Imagefilesize,
 		arg.Post,
 		arg.FinishedAt,
 	)
@@ -47,6 +59,10 @@ func (q *Queries) CreateIllustration(ctx context.Context, arg CreateIllustration
 		&i.Slug,
 		&i.Description,
 		&i.Imageurl,
+		&i.Imageheight,
+		&i.Imagewidth,
+		&i.Imagemimetype,
+		&i.Imagefilesize,
 		&i.Post,
 		&i.FinishedAt,
 		&i.CreatedAt,
@@ -55,7 +71,7 @@ func (q *Queries) CreateIllustration(ctx context.Context, arg CreateIllustration
 }
 
 const findIllustrationById = `-- name: FindIllustrationById :one
-SELECT id, title, slug, description, imageurl, post, finished_at, created_at FROM illustrations WHERE id = $1
+SELECT id, title, slug, description, imageurl, imageheight, imagewidth, imagemimetype, imagefilesize, post, finished_at, created_at FROM illustrations WHERE id = $1
 `
 
 func (q *Queries) FindIllustrationById(ctx context.Context, id int64) (Illustration, error) {
@@ -67,6 +83,10 @@ func (q *Queries) FindIllustrationById(ctx context.Context, id int64) (Illustrat
 		&i.Slug,
 		&i.Description,
 		&i.Imageurl,
+		&i.Imageheight,
+		&i.Imagewidth,
+		&i.Imagemimetype,
+		&i.Imagefilesize,
 		&i.Post,
 		&i.FinishedAt,
 		&i.CreatedAt,
@@ -75,7 +95,7 @@ func (q *Queries) FindIllustrationById(ctx context.Context, id int64) (Illustrat
 }
 
 const findIllustrationByName = `-- name: FindIllustrationByName :one
-SELECT id, title, slug, description, imageurl, post, finished_at, created_at FROM illustrations WHERE slug = $1 LIMIT 1
+SELECT id, title, slug, description, imageurl, imageheight, imagewidth, imagemimetype, imagefilesize, post, finished_at, created_at FROM illustrations WHERE slug = $1 LIMIT 1
 `
 
 func (q *Queries) FindIllustrationByName(ctx context.Context, slug pgtype.Text) (Illustration, error) {
@@ -87,6 +107,10 @@ func (q *Queries) FindIllustrationByName(ctx context.Context, slug pgtype.Text) 
 		&i.Slug,
 		&i.Description,
 		&i.Imageurl,
+		&i.Imageheight,
+		&i.Imagewidth,
+		&i.Imagemimetype,
+		&i.Imagefilesize,
 		&i.Post,
 		&i.FinishedAt,
 		&i.CreatedAt,
@@ -106,7 +130,7 @@ func (q *Queries) FindIllustrationsCount(ctx context.Context) (int64, error) {
 }
 
 const listIllustrations = `-- name: ListIllustrations :many
-SELECT id, title, slug, description, imageurl, post, finished_at, created_at 
+SELECT id, title, slug, description, imageurl, imageheight, imagewidth, imagemimetype, imagefilesize, post, finished_at, created_at 
 FROM illustrations 
 ORDER BY finished_at, created_at DESC
 LIMIT $1 OFFSET $2
@@ -132,6 +156,10 @@ func (q *Queries) ListIllustrations(ctx context.Context, arg ListIllustrationsPa
 			&i.Slug,
 			&i.Description,
 			&i.Imageurl,
+			&i.Imageheight,
+			&i.Imagewidth,
+			&i.Imagemimetype,
+			&i.Imagefilesize,
 			&i.Post,
 			&i.FinishedAt,
 			&i.CreatedAt,
@@ -147,7 +175,7 @@ func (q *Queries) ListIllustrations(ctx context.Context, arg ListIllustrationsPa
 }
 
 const updateSlug = `-- name: UpdateSlug :one
-UPDATE illustrations SET slug = $1 WHERE id = $2 RETURNING id, title, slug, description, imageurl, post, finished_at, created_at
+UPDATE illustrations SET slug = $1 WHERE id = $2 RETURNING id, title, slug, description, imageurl, imageheight, imagewidth, imagemimetype, imagefilesize, post, finished_at, created_at
 `
 
 type UpdateSlugParams struct {
@@ -164,6 +192,10 @@ func (q *Queries) UpdateSlug(ctx context.Context, arg UpdateSlugParams) (Illustr
 		&i.Slug,
 		&i.Description,
 		&i.Imageurl,
+		&i.Imageheight,
+		&i.Imagewidth,
+		&i.Imagemimetype,
+		&i.Imagefilesize,
 		&i.Post,
 		&i.FinishedAt,
 		&i.CreatedAt,

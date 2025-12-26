@@ -6,10 +6,18 @@ CREATE TABLE IF NOT EXISTS illustrations (
     slug            TEXT UNIQUE,
     description     TEXT NOT NULL,
     imageURL        TEXT NOT NULL,
+    imageHeight     INT,
+    imageWidth      INT,
+    imageMimeType   TEXT,
+    imageFileSize   INT,
     post            TEXT,
     finished_at      TIMESTAMPTZ DEFAULT now(),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE TABLE IF NOT EXISTS images (
+
+)
 -- +goose StatementEnd
 
 -- +goose Down

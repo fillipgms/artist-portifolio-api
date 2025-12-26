@@ -9,12 +9,19 @@ import (
 )
 
 type Illustration struct {
-	ID          int64              `json:"id"`
-	Title       string             `json:"title"`
-	Slug        pgtype.Text        `json:"slug"`
-	Description string             `json:"description"`
-	Imageurl    string             `json:"imageurl"`
-	Post        pgtype.Text        `json:"post"`
-	FinishedAt  pgtype.Timestamptz `json:"finished_at"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	ID            int64              `json:"id"`
+	Title         string             `json:"title"`
+	Slug          pgtype.Text        `json:"slug"`
+	Description   string             `json:"description"`
+	Imageurl      string             `json:"imageurl"`
+	Imageheight   pgtype.Int4        `json:"imageheight"`
+	Imagewidth    pgtype.Int4        `json:"imagewidth"`
+	Imagemimetype pgtype.Text        `json:"imagemimetype"`
+	Imagefilesize pgtype.Int4        `json:"imagefilesize"`
+	Post          pgtype.Text        `json:"post"`
+	FinishedAt    pgtype.Timestamptz `json:"finished_at"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+}
+
+type Image struct {
 }
