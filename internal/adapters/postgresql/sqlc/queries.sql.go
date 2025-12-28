@@ -132,7 +132,7 @@ func (q *Queries) FindIllustrationsCount(ctx context.Context) (int64, error) {
 const listIllustrations = `-- name: ListIllustrations :many
 SELECT id, title, slug, description, imageurl, imageheight, imagewidth, imagemimetype, imagefilesize, post, finished_at, created_at 
 FROM illustrations 
-ORDER BY finished_at, created_at DESC
+ORDER BY finished_at DESC, created_at DESC
 LIMIT $1 OFFSET $2
 `
 

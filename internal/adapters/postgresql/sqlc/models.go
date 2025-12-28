@@ -23,5 +23,14 @@ type Illustration struct {
 	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 }
 
-type Image struct {
+type IllustrationSoftware struct {
+	IllustrationID int64 `json:"illustration_id"`
+	SoftwareID     int64 `json:"software_id"`
+}
+
+type Software struct {
+	ID        int64              `json:"id"`
+	Name      string             `json:"name"`
+	Image     pgtype.Text        `json:"image"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }

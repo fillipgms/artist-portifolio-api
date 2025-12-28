@@ -8,6 +8,7 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"time"
 
 	_ "golang.org/x/image/webp"
 
@@ -101,7 +102,31 @@ func (h *handler) CreateIllustration(w http.ResponseWriter, r *http.Request) {
         filename,
     )
 
-	 tempIllustration := repo.CreateIllustrationParams{
+	formFinishedAt := r.FormValue("finishedAt")
+
+	var finishedAt pgtype.Timestamptz
+
+	if formFinishedAt != "" {
+		parsedTime, err := time.Parse(time.RFC3339, formFinishedAt)
+		if err != nil {
+			finishedAt = pgtype.Timestamptz{
+				Time:  time.Now(),
+				Valid: true,
+			}
+		} else {
+			finishedAt = pgtype.Timestamptz{
+				Time:  parsedTime,
+				Valid: true,
+			}
+		}
+	} else {
+		finishedAt = pgtype.Timestamptz{
+			Time:  time.Now(),
+			Valid: true,
+		}
+	}
+
+	tempIllustration := repo.CreateIllustrationParams{
         Title:       r.FormValue("title"),
         Description: r.FormValue("description"),
         Imageurl:    imageURL,
@@ -121,6 +146,7 @@ func (h *handler) CreateIllustration(w http.ResponseWriter, r *http.Request) {
             Int32: int32(fileSize),
             Valid: true,
         },
+		FinishedAt: finishedAt,
     }
 	
 	createdIllustration, err := h.service.CreateIllustration(r.Context(), tempIllustration)

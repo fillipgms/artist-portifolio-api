@@ -15,9 +15,18 @@ CREATE TABLE IF NOT EXISTS illustrations (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE TABLE IF NOT EXISTS images (
+CREATE TABLE IF NOT EXISTS softwares (
+    id              BIGSERIAL PRIMARY key,
+    name            TEXT NOT NULL,
+    image           TEXT,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
-)
+CREATE TABLE IF NOT EXISTS illustration_softwares (
+    illustration_id BIGINT REFERENCES illustrations(id) ON DELETE CASCADE,
+    software_id     BIGINT REFERENCES softwares(id) ON DELETE CASCADE,
+    PRIMARY KEY (illustration_id, software_id)
+);
 -- +goose StatementEnd
 
 -- +goose Down

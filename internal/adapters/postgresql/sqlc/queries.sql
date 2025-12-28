@@ -1,7 +1,7 @@
 -- name: ListIllustrations :many
 SELECT * 
 FROM illustrations 
-ORDER BY finished_at, created_at DESC
+ORDER BY finished_at DESC, created_at DESC
 LIMIT $1 OFFSET $2;
 
 -- name: FindIllustrationById :one
